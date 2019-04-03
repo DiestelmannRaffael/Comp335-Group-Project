@@ -22,7 +22,7 @@ public class JobSchedulerClient {
     public String receiveMessageFromServer() throws IOException {
         int tempinput;
         String response = "";
-        while((tempinput = in.read()) != 10){
+        while((tempinput = in.read()) != '\n'){ // 10 is ASCII code for newLine
             response = response+(char)tempinput;
         }
         System.out.println("receiveMessageFromServer: " + response);

@@ -1,6 +1,6 @@
 package datacontainers;
 
-public class Job {
+public class StaticJob {
     private static int nextId = 0;
     private final int jobId;
     private String type;
@@ -8,7 +8,7 @@ public class Job {
     private int maxRunTime;
     private int populationRate;
 
-    public Job( String type, int minRunTime, int maxRunTime, int populationRate){
+    public StaticJob(String type, int minRunTime, int maxRunTime, int populationRate){
         jobId = nextId++;
 
         this.type = type;

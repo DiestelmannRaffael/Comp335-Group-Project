@@ -22,8 +22,8 @@ public class XmlReader {
         return servers;
     }
 
-    public List<Job> getJobs() {
-        return jobs;
+    public List<StaticJob> getStaticJobs() {
+        return staticJobs;
     }
 
     public List<Workload> getWorkload() {
@@ -38,7 +38,7 @@ public class XmlReader {
         return termination;
     }
 
-    private List<Job> jobs = new ArrayList<>();
+    private List<StaticJob> staticJobs = new ArrayList<>();
     private List<Workload> workload = new ArrayList<>();
     private List<Condition> conditions = new ArrayList<>();
     private Termination termination = null;
@@ -84,8 +84,8 @@ public class XmlReader {
                 int maxRunTime = Integer.parseInt(jobElement.getAttribute("maxRunTime"));
                 int populationRate = Integer.parseInt(jobElement.getAttribute("populationRate"));
 
-                jobs.add(new Job(type, minRunTime, maxRunTime, populationRate));
-                System.out.println(jobs.get(i));
+                staticJobs.add(new StaticJob(type, minRunTime, maxRunTime, populationRate));
+                System.out.println(staticJobs.get(i));
 
             }
 
