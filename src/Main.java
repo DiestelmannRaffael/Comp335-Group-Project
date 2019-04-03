@@ -30,7 +30,7 @@ public class Main {
             }
             String temp ="";
 
-            //read the system.xml
+            //read the system.xml = this is the ds-config1.xml
 
             List<DynamicJob> dynamicJobList = new ArrayList<>();
             List<DynamicServer> dynamicServerList = new ArrayList<>();
@@ -46,7 +46,7 @@ public class Main {
                 int memory = Integer.parseInt(parts[5]);
                 int disk = Integer.parseInt(parts[6]);
 
-                System.out.println("job id: "+ jobId);
+//                System.out.println("job id: "+ jobId);
 
                 DynamicJob dynamicJob = new DynamicJob(submitTime, jobId, estRunTime, cpuCores, memory, disk);
                 dynamicJobList.add(dynamicJob);
@@ -68,48 +68,49 @@ public class Main {
                     int serverMemory = Integer.parseInt(parts[5]);
                     int serverDisk = Integer.parseInt(parts[6]);
 
-
-
                     dynamicServerList.add(new DynamicServer(serverType, serverTypeId, serverState, availableTime, serverCpuCores,
                             serverMemory, serverDisk));
 
                     client.sendMessageToServer("OK");
                 }
-//                System.out.println("out of . while loop");
 
-                //Schedule the job
-//                String scheduleInfo = "SCHD " + dynamicJobList.get(0).getJobId() + " " +
-//                        dynamicServerList.get(10).getServerType() + " " + dynamicServerList.get(10).getServerTypeId();
-//                client.sendMessageToServer(scheduleInfo);
+                //get the first largest server index
+
+
+                int serverIndex = 0;
+                int maxCoreCounter = 0;
+                for(int i = 0; i < dynamicServerList.size(); i++){
+//                    System.out.println(i);
+                    int hold = 0;
+                    if((hold = dynamicServerList.get(i).getCpuCores()) > maxCoreCounter){
+                        maxCoreCounter = hold;
+                        serverIndex = i;
+                    }
+                }
+//                System.out.println("maxcorecounter: "+ maxCoreCounter);
+//                System.out.println("serverIndex: "+ serverIndex );
+
+//                System.out.println(index);
 
                 //Schedule the job
                 String scheduleInfo = "SCHD " + jobId + " " +
-                        dynamicServerList.get(10).getServerType() + " " + dynamicServerList.get(10).getServerTypeId();
+                        dynamicServerList.get(serverIndex).getServerType() + " " + dynamicServerList.get(serverIndex).getServerTypeId();
                 client.sendMessageToServer(scheduleInfo);
 
                 //response from server "OK"
                 if(client.receiveMessageFromServer().equals("OK")){
                     //send back "REDY"
                     client.sendMessageToServer("REDY");
+                }else if(client.receiveMessageFromServer().equals("ERR")){
+                    System.out.println("ERROR: <"+scheduleInfo+"> invalid message recieved");
                 }
-                //send back "REDY"
-//                client.sendMessageToServer("REDY");
-
             }
-//            if(temp.equals("NONE")) {
-//                System.out.println("YAAAAASSSS");
-//            }
-
-            client.sendMessageToServer("QUIT");
-            if(client.receiveMessageFromServer().equals("QUIT")) {
-                socket.close();
+            if(temp.equals("NONE")) {
+                client.sendMessageToServer("QUIT");
+                if(client.receiveMessageFromServer().equals("QUIT")) {
+                    socket.close();
+                }
             }
-
-
-
-
-
             socket.close();
     }
-
 }
