@@ -1,4 +1,4 @@
-package datacontainers;
+package datacontainers.staticcontainers;
 
 public class StaticJob {
     private static int nextId = 0;

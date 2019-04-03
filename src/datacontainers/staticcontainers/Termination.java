@@ -1,4 +1,4 @@
-package datacontainers;
+package datacontainers.staticcontainers;
 
 import java.util.List;
 

@@ -1,9 +1,9 @@
-package datacontainers;
+package datacontainers.staticcontainers;
 
 import java.util.List;
 
 public class Config {
-    private List<Server> servers;
+    private List<StaticServer> staticServers;
     private List<StaticJob> staticJobs;
     private Workload workload;
 //    private Termination termination;

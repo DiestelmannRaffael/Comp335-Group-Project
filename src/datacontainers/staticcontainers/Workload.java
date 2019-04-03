@@ -1,4 +1,4 @@
-package datacontainers;
+package datacontainers.staticcontainers;
 
 public class Workload {
     private String type;

@@ -1,4 +1,4 @@
-package datacontainers;
+package datacontainers.dynamiccontainers;
 
 public class DynamicServer {
     private String serverType;

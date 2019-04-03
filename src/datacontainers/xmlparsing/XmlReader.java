@@ -1,6 +1,6 @@
-//refrence https://www.youtube.com/watch?v=8MJJ7MWX8Qs
+package datacontainers.xmlparsing;//refrence https://www.youtube.com/watch?v=8MJJ7MWX8Qs
 
-import datacontainers.*;
+import datacontainers.staticcontainers.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -16,10 +16,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class XmlReader {
-    private List<Server> servers = new ArrayList<>();
+    private List<StaticServer> staticServers = new ArrayList<>();
 
-    public List<Server> getServers() {
-        return servers;
+    public List<StaticServer> getStaticServers() {
+        return staticServers;
     }
 
     public List<StaticJob> getStaticJobs() {
@@ -68,8 +68,8 @@ public class XmlReader {
                 int memory = Integer.parseInt(serverElement.getAttribute("memory"));
                 int diskSpace = Integer.parseInt(serverElement.getAttribute("disk"));
 
-               servers.add(new Server(type, limit, bootupTime, hourlyRate, coreCount, memory, diskSpace));
-                System.out.println(servers.get(i));
+               staticServers.add(new StaticServer(type, limit, bootupTime, hourlyRate, coreCount, memory, diskSpace));
+                System.out.println(staticServers.get(i));
 
             }
 

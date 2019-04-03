@@ -1,4 +1,4 @@
-package datacontainers;
+package datacontainers.staticcontainers;
 
 public class Condition {
     private String type;

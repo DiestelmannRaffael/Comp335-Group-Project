@@ -1,6 +1,6 @@
-package datacontainers;
+package datacontainers.staticcontainers;
 
-public class Server {
+public class StaticServer {
     private String type;
     private int limit;
     private int bootupTime;
@@ -9,7 +9,7 @@ public class Server {
     private int memory;
     private int diskSpace;
 
-    public Server( String type, int limit, int bootupTime, float hourlyRate, int coreCount, int memory, int diskSpace){
+    public StaticServer(String type, int limit, int bootupTime, float hourlyRate, int coreCount, int memory, int diskSpace){
         this.type = type;
         this.limit = limit;
         this.bootupTime = bootupTime;

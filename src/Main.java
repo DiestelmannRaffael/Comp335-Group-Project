@@ -1,5 +1,6 @@
-import datacontainers.DynamicJob;
-import datacontainers.DynamicServer;
+import datacontainers.dynamiccontainers.DynamicJob;
+import datacontainers.dynamiccontainers.DynamicServer;
+import datacontainers.xmlparsing.XmlReader;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -19,7 +20,7 @@ public class Main {
 
             //server responds with ok
             if(client.receiveMessageFromServer().equals("OK")) {
-                //sen the auth
+                //send the auth
                 client.sendMessageToServer("AUTH comp335");
             }
 
@@ -28,7 +29,8 @@ public class Main {
                 //send the ready response
                 client.sendMessageToServer("REDY");
             }
-            String temp ="";
+
+            String temp;
 
             //read the system.xml = this is the ds-config1.xml
 
@@ -45,8 +47,6 @@ public class Main {
                 int cpuCores = Integer.parseInt(parts[4]);
                 int memory = Integer.parseInt(parts[5]);
                 int disk = Integer.parseInt(parts[6]);
-
-//                System.out.println("job id: "+ jobId);
 
                 DynamicJob dynamicJob = new DynamicJob(submitTime, jobId, estRunTime, cpuCores, memory, disk);
                 dynamicJobList.add(dynamicJob);
@@ -76,21 +76,15 @@ public class Main {
 
                 //get the first largest server index
 
-
                 int serverIndex = 0;
                 int maxCoreCounter = 0;
                 for(int i = 0; i < dynamicServerList.size(); i++){
-//                    System.out.println(i);
-                    int hold = 0;
+                    int hold;
                     if((hold = dynamicServerList.get(i).getCpuCores()) > maxCoreCounter){
                         maxCoreCounter = hold;
                         serverIndex = i;
                     }
                 }
-//                System.out.println("maxcorecounter: "+ maxCoreCounter);
-//                System.out.println("serverIndex: "+ serverIndex );
-
-//                System.out.println(index);
 
                 //Schedule the job
                 String scheduleInfo = "SCHD " + jobId + " " +
