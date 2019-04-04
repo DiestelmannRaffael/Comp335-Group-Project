@@ -21,7 +21,7 @@ public class Main {
             //server responds with ok
             if(client.receiveMessageFromServer().equals("OK")) {
                 //send the auth
-                client.sendMessageToServer("AUTH comp335");
+                client.sendMessageToServer("AUTH "+System.getProperty("user.name"));
             }
 
             //server responds with ok
