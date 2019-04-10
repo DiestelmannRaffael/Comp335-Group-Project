@@ -47,7 +47,8 @@ public class XmlReader {
         DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
         try{
             DocumentBuilder dbuilder = builderFactory.newDocumentBuilder();
-            Document document = dbuilder.parse(XMLReader.class.getResourceAsStream("/ds-config1.xml"));
+            //Document document = dbuilder.parse(XMLReader.class.getResourceAsStream("/ds-config1.xml"));
+            Document document = dbuilder.parse(XMLReader.class.getResourceAsStream("/system.xml"));
             document.normalize();
 
 

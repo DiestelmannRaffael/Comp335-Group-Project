@@ -1,3 +1,10 @@
+/*
+* Stage 1: 'vanilla' client-side simulator with a simple job dispatcher
+* Group 8: Raffael Andreas Diestelmann (45569037),
+*          Connor O’Grady (45117322),
+*          Sang Woung Yoon (44298196)
+* Git: (https://github.com/DiestelmannRaffael/Comp335-Group-Project/tree/stage1)
+* */
 import datacontainers.dynamiccontainers.DynamicJob;
 import datacontainers.dynamiccontainers.DynamicServer;
 import datacontainers.xmlparsing.XmlReader;
@@ -13,7 +20,7 @@ public class Main {
             int port = 8096;
             Socket socket = new Socket(serverName, port);
             JobSchedulerClient client = new JobSchedulerClient(socket);
-            XmlReader xmlReader = new XmlReader();
+            //XmlReader xmlReader = new XmlReader();
 
             //send the helo
             client.sendMessageToServer("HELO");
