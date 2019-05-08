@@ -43,10 +43,10 @@ public class Main {
         //read the system.xml = this is the ds-config1.xml
 
         List<DynamicJob> dynamicJobList = new ArrayList<>();
-        List<DynamicServer> dynamicServerList = new ArrayList<>();
-
 
         while ((temp = client.receiveMessageFromServer()).contains("JOBN")) {
+            List<DynamicServer> dynamicServerList = new ArrayList<>();
+
             String[] parts = temp.split(" ");
 
             int submitTime = Integer.parseInt(parts[1]);
