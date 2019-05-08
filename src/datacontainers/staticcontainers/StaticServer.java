@@ -24,4 +24,34 @@ public class StaticServer {
         return "< type: " + type + ", limit: " + limit + ", bootupTime: " + bootupTime + ", hourlyRate: " + hourlyRate
                 + ", coreCount: " + coreCount + ", memory: " + memory + ", diskSpace: " + diskSpace +  " >";
     }
+
+    public String getType() {
+        return type;
+    }
+
+
+
+    public int getLimit() {
+        return limit;
+    }
+
+    public int getBootupTime() {
+        return bootupTime;
+    }
+
+    public float getHourlyRate() {
+        return hourlyRate;
+    }
+
+    public int getCoreCount() {
+        return coreCount;
+    }
+
+    public int getMemory() {
+        return memory;
+    }
+
+    public int getDiskSpace() {
+        return diskSpace;
+    }
 }

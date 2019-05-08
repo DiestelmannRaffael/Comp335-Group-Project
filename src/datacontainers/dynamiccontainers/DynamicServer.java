@@ -46,4 +46,10 @@ public class DynamicServer {
     public int getDisk() {
         return disk;
     }
+
+    @Override
+    public String toString(){
+        return "< type: " + serverType + ", id: " + serverTypeId + ", serverState: " + serverState + ", availableTime: " + availableTime
+                + ", cpuCores: " + cpuCores + ", memory: " + memory + ", disk: " + disk +  " >";
+    }
 }
