@@ -87,7 +87,7 @@ public class Main {
             //first fit algorithm
             if (args[0].equals("-a") && args[1].equals("ff")) {
                 for (DynamicServer ds : dynamicServerList) {
-                    if(ds.getCpuCores() >= cpuCores && ds.getDisk() >= disk && ds.getMemory() > memory) {
+                    if(ds.getCpuCores() >= cpuCores && ds.getDisk() >= disk && ds.getMemory() >= memory) {
                         scheduleInfo = "SCHD " + jobId + " " + ds.getServerType() + " " + ds.getServerTypeId();
                         client.sendMessageToServer(scheduleInfo);
                         break;
