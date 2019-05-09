@@ -13,6 +13,8 @@ import datacontainers.xmlparsing.XmlReader;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 public class Main {
@@ -43,6 +45,9 @@ public class Main {
         //read the system.xml = this is the ds-config1.xml
 
         List<DynamicJob> dynamicJobList = new ArrayList<>();
+        List<DynamicServer> initialServerList = new ArrayList<>();
+
+        boolean initialRun = true;
 
         while ((temp = client.receiveMessageFromServer()).contains("JOBN")) {
             List<DynamicServer> dynamicServerList = new ArrayList<>();
@@ -60,7 +65,8 @@ public class Main {
             DynamicJob dynamicJob = new DynamicJob(submitTime, jobId, estRunTime, cpuCores, memory, disk);
             dynamicJobList.add(dynamicJob);
 
-            client.sendMessageToServer("RESC Avail " + cpuCores + " " + memory + " " + disk);
+//            client.sendMessageToServer("RESC Avail " + cpuCores + " " + memory + " " + disk);
+            client.sendMessageToServer("RESC All");
 
             if (client.receiveMessageFromServer().contains("DATA")) {
                 client.sendMessageToServer("OK");
@@ -79,18 +85,39 @@ public class Main {
 
                 dynamicServerList.add(new DynamicServer(serverType, serverTypeId, serverState, availableTime, serverCpuCores,
                         serverMemory, serverDisk));
+                if(initialRun) {
+                    initialServerList.add(new DynamicServer(serverType, serverTypeId, serverState, availableTime, serverCpuCores,
+                            serverMemory, serverDisk));
+                }
 
+                Collections.sort(dynamicServerList, new ServerSorter());
+                Collections.sort(initialServerList, new ServerSorter());
                 client.sendMessageToServer("OK");
+
             }
+            initialRun = false;
 
             String scheduleInfo = null;
+            int i = 0;
+            boolean lastElement = false;
             //first fit algorithm
             if (args[0].equals("-a") && args[1].equals("ff")) {
                 for (DynamicServer ds : dynamicServerList) {
-                    if(ds.getCpuCores() >= cpuCores && ds.getDisk() >= disk && ds.getMemory() >= memory) {
+                    if(i++ == dynamicServerList.size() - 1)
+                        lastElement = true;
+                    if (ds.getCpuCores() >= cpuCores && ds.getDisk() >= disk && ds.getMemory() >= memory) {
                         scheduleInfo = "SCHD " + jobId + " " + ds.getServerType() + " " + ds.getServerTypeId();
                         client.sendMessageToServer(scheduleInfo);
                         break;
+                        // no available server found
+                    } else if (lastElement) {
+                        for (DynamicServer is : initialServerList) {
+                            if (is.getCpuCores() >= cpuCores && is.getDisk() >= disk && is.getMemory() >= memory) {
+                                scheduleInfo = "SCHD " + jobId + " " + is.getServerType() + " " + is.getServerTypeId();
+                                client.sendMessageToServer(scheduleInfo);
+                                break;
+                            }
+                        }
                     }
                 }
             }

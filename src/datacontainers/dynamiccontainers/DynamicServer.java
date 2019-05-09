@@ -8,6 +8,7 @@ public class DynamicServer {
     private int cpuCores;
     private int memory;
     private int disk;
+    private int serverTypeValue;
 
     public DynamicServer(String serverType, int serverTypeId, int serverState, int availableTime, int cpuCores, int memory, int disk) {
         this.serverType = serverType;
@@ -17,7 +18,21 @@ public class DynamicServer {
         this.cpuCores = cpuCores;
         this.memory = memory;
         this.disk = disk;
+
+        switch (serverType) {
+            case "tiny": this.serverTypeValue = 0;
+                break;
+            case "small": this.serverTypeValue = 1;
+                break;
+            case "medium": this.serverTypeValue = 2;
+                break;
+            case "large": this.serverTypeValue = 3;
+                break;
+            case "xlarge": this.serverTypeValue = 4;
+                break;
+        }
     }
+    public int getServerTypeValue() { return serverTypeValue; }
 
     public String getServerType() {
         return serverType;
