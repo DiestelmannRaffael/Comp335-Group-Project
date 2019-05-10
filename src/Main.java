@@ -1,10 +1,10 @@
 /*
-* Stage 1: 'vanilla' client-side simulator with a simple job dispatcher
-* Group 8: Raffael Andreas Diestelmann (45569037),
-*          Connor O’Grady (45117322),
-*          Sang Woung Yoon (44298196)
-* Git: (https://github.com/DiestelmannRaffael/Comp335-Group-Project/tree/stage1)
-* */
+ * Stage 1: 'vanilla' client-side simulator with a simple job dispatcher
+ * Group 8: Raffael Andreas Diestelmann (45569037),
+ *          Connor O’Grady (45117322),
+ *          Sang Woung Yoon (44298196)
+ * Git: (https://github.com/DiestelmannRaffael/Comp335-Group-Project/tree/stage1)
+ * */
 import datacontainers.dynamiccontainers.DynamicJob;
 import datacontainers.dynamiccontainers.DynamicServer;
 import datacontainers.staticcontainers.StaticServer;
@@ -22,9 +22,6 @@ public class Main {
         Socket socket = new Socket(serverName, port);
         JobSchedulerClient client = new JobSchedulerClient(socket);
 
-//        for(String i : args){
-//            System.out.println(i);
-//        }
 
         //send the helo
         client.sendMessageToServer("HELO");
@@ -43,23 +40,22 @@ public class Main {
 
         String temp;
 
-        //read the system.xml = this is the ds-config1.xml
+        //parse the system.xml
         XmlReader xmlReader = new XmlReader();
-
+        //set static server list to parsed list
         List<StaticServer> staticServers = xmlReader.getStaticServers();
 
-//        for(StaticServer i : a){
-//            System.out.println(i.getType());
-//        }
 
-
+        //create a new job list
         List<DynamicJob> dynamicJobList = new ArrayList<>();
+
 
         while((temp = client.receiveMessageFromServer()).contains("JOBN")) {
             String[] parts = temp.split(" ");
 
-
+            //create new server list
             List<DynamicServer> dynamicServerList = new ArrayList<>();
+
 
             int submitTime = Integer.parseInt(parts[1]);
             int jobId = Integer.parseInt(parts[2]);
@@ -72,15 +68,12 @@ public class Main {
             dynamicJobList.add(dynamicJob);
 
             client.sendMessageToServer("RESC All");
-//            client.sendMessageToServer("RESC Avail "+cpuCores+" "+memory+" "+disk);
-
 
             if(client.receiveMessageFromServer().contains("DATA")) {
                 client.sendMessageToServer("OK");
             }
 
-
-
+            //populate the dynamicServerList
             while(!(temp = client.receiveMessageFromServer()).equals(".")) {
 
                 parts = temp.split(" ");
@@ -98,76 +91,169 @@ public class Main {
                 client.sendMessageToServer("OK");
             }
 
-//            System.out.println("before message");
-            if(args[0].contains("-a") && args[1].contains("ff")){
-                // first fit
-//                System.out.println("ff");
-            }else if (args[0].contains("-a") && args[1].contains("bf")){
-                //best fit
-//                System.out.println("bf");
 
-            }else if (args[0].contains("-a") && args[1].contains("wf")){
-                //worst fit
-//                System.out.println("===== wf ====== ");
-                int worstFit = cpuCores;
-                int altFit = worstFit;
 
-                //
-                for(StaticServer server : staticServers){//
-                    System.out.println();
-                    System.out.println(server.getType());
-                    //check the server type in order of the system.xml
-                    for(DynamicServer dynamicServer: dynamicServerList){
-                        if(dynamicServer.getServerType().equals(server.getType())){
-//                            if(dynamicServer.getCpuCores())
-                            System.out.println(dynamicServer.toString());
+                    //print the dynamicServerList
+            System.out.println("DynamicServerList");
+            for(DynamicServer current: dynamicServerList){
+                System.out.println(current);
+            }
+            System.out.println("^^^");
+
+            //get the first largest server index
+
+
+
+
+            if(args[0].contains("-a") && args[1].contains("ff")){ // first fit
+
+                System.out.println("ff");
+
+            }else if (args[0].contains("-a") && args[1].contains("bf")){ // best fit
+
+                System.out.println("bf");
+
+            }else if (args[0].contains("-a") && args[1].contains("wf")) { // worst fit
+
+                System.out.println("wf");
+
+                System.out.println("StaticServers");
+                for (StaticServer current : staticServers) {
+                    System.out.println(current);
+                }
+                System.out.println("^^^");
+
+                int worstFit = -1;
+                int altFit = -1;
+                int worstFitAct = -1;
+
+                DynamicServer wf = null;
+                DynamicServer af = null;
+                DynamicServer wfact = null;
+
+                for (StaticServer currentStatic : staticServers) {
+                    for (DynamicServer currentDynamic : dynamicServerList) {
+                        if (currentDynamic.getServerType().equals(currentStatic.getType())) {
+
+//                            System.out.println(currentDynamic);//print the current statistics
+
+
+//    System.out.println("System out < type: "+currentDynamic.getServerType()+", id: "+currentDynamic.getServerTypeId()+", serverState: "+
+//            currentDynamic.getServerState()+", availableTime: "+ currentDynamic.getAvailableTime()+", cpuCores: "+
+//            currentStatic.getCoreCount()+", memory: "+currentStatic.getMemory()+", disk: "+currentStatic.getDiskSpace()+" >");
+
+//                            if(currentDynamic.getCpuCores() >= cpuCores && currentDynamic.getMemory() >= memory && currentDynamic.getDisk() >= disk &&
+//                                    (currentDynamic.getServerState() == 0 || currentDynamic.getServerState() == 2 || currentDynamic.getServerState() == 3)){
+//                                System.out.println("sutible server ^");
+//                                int fitness = currentDynamic.getCpuCores() - cpuCores;
+//
+//                                if(fitness > worstFit && currentDynamic.getAvailableTime() >= submitTime ){
+//                                    worstFit = fitness;
+//                                    wf = currentDynamic;
+//                                }else if(fitness > altFit && currentDynamic.getServerState() == 0){
+//                                    altFit = fitness;
+//                                    af = currentDynamic;
+//                                }
+//                            }
+//
+//                            if(currentStatic.getCoreCount() > cpuCores && currentStatic.getMemory() > memory && currentStatic.getDiskSpace() > disk && currentDynamic.getServerState() == 3){
+//                                System.out.println("static core >=");
+//                                int fitnessActive = currentStatic.getCoreCount() - cpuCores;
+//                                if(fitnessActive > worstFitActive){
+//                                    wfact = currentDynamic;
+//                                }
+//                            }
+
+                            if(currentStatic.getCoreCount() >= cpuCores && currentStatic.getMemory() >= memory && currentStatic.getDiskSpace() >= disk &&
+                                    (currentDynamic.getServerState() == 0 || currentDynamic.getServerState() == 2 || currentDynamic.getServerState() == 3)){
+                                System.out.println("sutible server ^");
+                                int fitness = currentDynamic.getCpuCores() - cpuCores;
+                                int fitnessAct = currentStatic.getCoreCount() - cpuCores;
+
+                                if(fitness > worstFit && currentDynamic.getAvailableTime() >= submitTime ){
+                                    worstFit = fitness;
+                                    wf = currentDynamic;
+                                }else if(fitness > altFit && currentDynamic.getServerState() == 0){
+                                    altFit = fitness;
+                                    af = currentDynamic;
+                                }else if(fitnessAct > worstFitAct && currentDynamic.getServerState() == 3){
+                                    wfact = currentDynamic;
+                                }
+                            }
+//                            if(currentDynamic.getServerState() == 3){
+//                                System.out.println("serverstate"+currentDynamic);
+//                            }
+//                            if(currentStatic.getCoreCount() >= cpuCores && currentStatic.getMemory() >= memory && currentStatic.getDiskSpace() >= disk && currentDynamic.getServerState() == 3){
+//                                int fitness = currentStatic.getCoreCount() - cpuCores;
+//                                if(fitness > worstFit && currentDynamic.getAvailableTime() >= submitTime ){
+//                                    wfact = currentDynamic;
+//                                }
+//                            }
                         }
                     }
+                }
 
+                //Schedule the job
+
+                String scheduleInfo = null;
+
+                if(worstFit > -1){
+                    System.out.println("wf: "+wf);
+                    scheduleInfo = "SCHD "+jobId+" "+wf.getServerType()+" "+wf.getServerTypeId();
+                }else if (altFit > -1){
+                    System.out.println("af: "+af);
+                    scheduleInfo = "SCHD "+jobId+" "+af.getServerType()+" "+af.getServerTypeId();
+                }else{
+                    System.out.println("wrf: "+wfact);
+                    scheduleInfo = "SCHD "+jobId+" "+wfact.getServerType()+" "+wfact.getServerTypeId();
 
                 }
 
-                //testing=======
-                socket.close();
-                //testing=======
+                client.sendMessageToServer(scheduleInfo);
+                //response from server "OK"
+                if (client.receiveMessageFromServer().equals("OK")) {
+                    //send back "REDY"
+                    client.sendMessageToServer("REDY");
+                } else if (client.receiveMessageFromServer().equals("ERR")) {
+                    System.out.println("ERROR: <" + scheduleInfo + "> invalid message recieved");
+                }
 
-            }else{
-
-//                System.out.println("else");
-                //get the first largest server index
-
-//                int serverIndex = 0;
-//                int maxCoreCounter = 0;
-//                for(int i = 0; i < dynamicServerList.size(); i++){
-//                    int hold;
-//                    if((hold = dynamicServerList.get(i).getCpuCores()) > maxCoreCounter){
-//                        maxCoreCounter = hold;
-//                        serverIndex = i;
-//
-//
-//                    }
-//                }
-//                //Schedule the job
-//                String scheduleInfo = "SCHD " + jobId + " " +
-//                        dynamicServerList.get(serverIndex).getServerType() + " " + dynamicServerList.get(serverIndex).getServerTypeId();
+//                Schedule the job
+//                String scheduleInfo = "SCHD 0 medium 0";
 //                client.sendMessageToServer(scheduleInfo);
 //
 //                //response from server "OK"
-//                if(client.receiveMessageFromServer().equals("OK")){
+//                if (client.receiveMessageFromServer().equals("OK")) {
 //                    //send back "REDY"
 //                    client.sendMessageToServer("REDY");
-//                }else if(client.receiveMessageFromServer().equals("ERR")){
-//                    System.out.println("ERROR: <"+scheduleInfo+"> invalid message recieved");
+//                } else if (client.receiveMessageFromServer().equals("ERR")) {
+//                    System.out.println("ERROR: <" + scheduleInfo + "> invalid message recieved");
 //                }
             }
 
+//            int serverIndex = 0;
+//            int maxCoreCounter = 0;
+//            for(int i = 0; i < dynamicServerList.size(); i++){
+//                int hold;
+//                if((hold = dynamicServerList.get(i).getCpuCores()) > maxCoreCounter){
+//                    maxCoreCounter = hold;
+//                    serverIndex = i;
+//                }
+//            }
 
+//            //Schedule the job
+//            String scheduleInfo = "SCHD " + jobId + " " +
+//                    dynamicServerList.get(serverIndex).getServerType() + " " + dynamicServerList.get(serverIndex).getServerTypeId();
+//            client.sendMessageToServer(scheduleInfo);
+//
+//            //response from server "OK"
+//            if(client.receiveMessageFromServer().equals("OK")){
+//                //send back "REDY"
+//                client.sendMessageToServer("REDY");
+//            }else if(client.receiveMessageFromServer().equals("ERR")){
+//                System.out.println("ERROR: <"+scheduleInfo+"> invalid message recieved");
+//            }
         }
-//        //go through dynamic job list print cores
-//        for(DynamicJob i : dynamicJobList){
-//            System.out.println(i.getCpuCores());
-//        }
-
         if(temp.equals("NONE")) {
             client.sendMessageToServer("QUIT");
             if(client.receiveMessageFromServer().equals("QUIT")) {
