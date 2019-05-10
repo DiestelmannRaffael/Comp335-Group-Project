@@ -27,6 +27,8 @@ To test/run the each algorithm you will need to:
 
 	2nd run the server.
 
-	3rd use a terminal window with  and type "./run.sh". 
+	3rd use a terminal window with  and type "./run.sh".
+		NOTE: in the case where you recieve a permission denied when trying to run "./run.sh", you will first need to use "chmod +x run.sh" then on the next line retype "./run.sh".
+
 		This will compile the java files within the folder and run the Main.class (java Main -a #), where # is either ff, bf, wf.
 
