@@ -1,9 +1,14 @@
 /*
- * Stage 1: 'vanilla' client-side simulator with a simple job dispatcher
+ * Stage 2: Stage 2: baseline algorithms
  * Group 8: Raffael Andreas Diestelmann (45569037),
  *          Connor O’Grady (45117322),
  *          Sang Woung Yoon (44298196)
- * Git: (https://github.com/DiestelmannRaffael/Comp335-Group-Project/tree/stage1)
+ *
+ * Document of Connor O'Grady
+ *
+ * WORST FIT Algorithm
+ *
+ * Git: (https://github.com/DiestelmannRaffael/Comp335-Group-Project/tree/stage2_ConnorOGrady_WF/src)
  * */
 import datacontainers.dynamiccontainers.DynamicJob;
 import datacontainers.dynamiccontainers.DynamicServer;
