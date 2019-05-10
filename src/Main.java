@@ -131,52 +131,34 @@ public class Main {
                 DynamicServer af = null;
                 DynamicServer wfact = null;
 
-                for (StaticServer currentStatic : staticServers) {
-                    for (DynamicServer currentDynamic : dynamicServerList) {
-                        if (currentDynamic.getServerType().equals(currentStatic.getType())) {
+                for (StaticServer currentStatic : staticServers) {// for each server in staticServer list
+                    for (DynamicServer currentDynamic : dynamicServerList) {//for each server in dynamicServer list
+                        if (currentDynamic.getServerType().equals(currentStatic.getType())) {//
 
 //                            System.out.println(currentDynamic);//print the current statistics
 
+                            if(currentDynamic.getCpuCores() >= cpuCores && currentDynamic.getMemory() >= memory && currentDynamic.getDisk() >= disk){
 
-//    System.out.println("System out < type: "+currentDynamic.getServerType()+", id: "+currentDynamic.getServerTypeId()+", serverState: "+
-//            currentDynamic.getServerState()+", availableTime: "+ currentDynamic.getAvailableTime()+", cpuCores: "+
-//            currentStatic.getCoreCount()+", memory: "+currentStatic.getMemory()+", disk: "+currentStatic.getDiskSpace()+" >");
-
-//                            if(currentDynamic.getCpuCores() >= cpuCores && currentDynamic.getMemory() >= memory && currentDynamic.getDisk() >= disk &&
-//                                    (currentDynamic.getServerState() == 0 || currentDynamic.getServerState() == 2 || currentDynamic.getServerState() == 3)){
-//                                System.out.println("sutible server ^");
-//                                int fitness = currentDynamic.getCpuCores() - cpuCores;
-//
-//                                if(fitness > worstFit && currentDynamic.getAvailableTime() >= submitTime ){
-//                                    worstFit = fitness;
-//                                    wf = currentDynamic;
-//                                }else if(fitness > altFit && currentDynamic.getServerState() == 0){
-//                                    altFit = fitness;
-//                                    af = currentDynamic;
-//                                }
-//                            }
-//
-//                            if(currentStatic.getCoreCount() > cpuCores && currentStatic.getMemory() > memory && currentStatic.getDiskSpace() > disk && currentDynamic.getServerState() == 3){
-//                                System.out.println("static core >=");
-//                                int fitnessActive = currentStatic.getCoreCount() - cpuCores;
-//                                if(fitnessActive > worstFitActive){
-//                                    wfact = currentDynamic;
-//                                }
-//                            }
-
-                            if(currentStatic.getCoreCount() >= cpuCores && currentStatic.getMemory() >= memory && currentStatic.getDiskSpace() >= disk &&
-                                    (currentDynamic.getServerState() == 0 || currentDynamic.getServerState() == 2 || currentDynamic.getServerState() == 3)){
+                                System.out.println("current Dyanmic: "+currentDynamic);
                                 System.out.println("sutible server ^");
                                 int fitness = currentDynamic.getCpuCores() - cpuCores;
-                                int fitnessAct = currentStatic.getCoreCount() - cpuCores;
 
-                                if(fitness > worstFit && currentDynamic.getAvailableTime() >= submitTime ){
+                                if(fitness > worstFit && (currentDynamic.getServerState() == 3 || currentDynamic.getServerState() == 2) ){
                                     worstFit = fitness;
                                     wf = currentDynamic;
-                                }else if(fitness > altFit && currentDynamic.getServerState() == 0){
+                                }else if(fitness > altFit &&
+                                        currentDynamic.getServerState() == 0){
                                     altFit = fitness;
                                     af = currentDynamic;
-                                }else if(fitnessAct > worstFitAct && currentDynamic.getServerState() == 3){
+                                }
+//
+                            }
+
+                            if(currentStatic.getCoreCount() >= cpuCores && currentStatic.getMemory() >= memory && currentStatic.getDiskSpace() >= disk){
+                                System.out.println("current static initial: id: "+currentDynamic.getServerTypeId()+" Core: "+currentStatic.getCoreCount()+" memory:"+currentStatic.getMemory()+" disk:"+currentStatic.getDiskSpace());
+                                int worstRunFitness = currentStatic.getCoreCount() - cpuCores;
+                                if(worstRunFitness > worstFitAct && currentDynamic.getServerState() == 3){
+                                    worstFitAct = worstRunFitness;
                                     wfact = currentDynamic;
                                 }
                             }

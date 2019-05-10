@@ -49,7 +49,6 @@ public class XmlReader {
         try{
 
             File inputFile = new File("system.xml");
-//            File inputFile = new File("/src/system.xml");
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
             Document doc = dBuilder.parse(inputFile);
