@@ -1,0 +1,29 @@
+COMP335 Stage 2
+
+Group 8:
+Raffael Andreas Diestelmann (45569037): First Fit (FF)
+Sang Woung Yoon (44298196): Best Fit (BF)
+Connor O’Grady (45117322) : Worst Fit (WF)
+
+FF (https://github.com/DiestelmannRaffael/Comp335-Group-Project/tree/stage2_diestelmann)
+BF (https://github.com/DiestelmannRaffael/Comp335-Group-Project/tree/stage2_Sang_BF)
+WF (https://github.com/DiestelmannRaffael/Comp335-Group-Project/tree/stage2_ConnorOGrady_WF)
+
+Requirments:
+	*** To run the code java and XML DOM need to be installed. ***
+	To install on a linux (ubuntu) environment the following can be used:
+
+		apt-get install default-jdk
+		sudo apt-get install libxml-dom-perl
+
+User Guide:
+
+	Due to possible conflict associated with merging the diffrent branches group 8 has opted to supply three seperate folders along with the algorithm design document. Each of the folders will have one of the following names (FF,BF,WF) for the corrosponding algorithm implemented.
+
+	To test/run the each algorithm you will need to:
+		1st move the test files relevant to that algorithm  into the algorithm's folder including the server files.
+		2nd run the server.
+		3rd use a terminal window with  and type "./run.sh". 
+			This will compile the java files within the folder and run the Main.class (java Main -a #)
+			where # is either ff, bf, wf.
+
