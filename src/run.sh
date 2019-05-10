@@ -1,2 +1,2 @@
 javac $(find . | grep .java);
-java Main
+java Main -a bf;
