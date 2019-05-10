@@ -20,10 +20,10 @@ User Guide:
 
 	Due to possible conflict associated with merging the diffrent branches group 8 has opted to supply three seperate folders along with the algorithm design document. Each of the folders will have one of the following names (FF,BF,WF) for the corrosponding algorithm implemented.
 
-	To test/run the each algorithm you will need to:
+	To test/run  each algorithm you will need to:
 		1st move the test files relevant to that algorithm  into the algorithm's folder including the server files.
-		2nd run the server.
-		3rd use a terminal window with  and type "./run.sh". 
+		2nd run the server can corrosponding config.
+		3rd use a terminal window in that directory and type "./run.sh". 
 			This will compile the java files within the folder and run the Main.class (java Main -a #)
 			where # is either ff, bf, wf.
 
