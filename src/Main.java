@@ -45,17 +45,14 @@ public class Main {
         //set static server list to parsed list
         List<StaticServer> staticServers = xmlReader.getStaticServers();
 
-
         //create a new job list
         List<DynamicJob> dynamicJobList = new ArrayList<>();
-
 
         while((temp = client.receiveMessageFromServer()).contains("JOBN")) {
             String[] parts = temp.split(" ");
 
             //create new server list
             List<DynamicServer> dynamicServerList = new ArrayList<>();
-
 
             int submitTime = Integer.parseInt(parts[1]);
             int jobId = Integer.parseInt(parts[2]);
@@ -91,20 +88,6 @@ public class Main {
                 client.sendMessageToServer("OK");
             }
 
-
-
-                    //print the dynamicServerList
-            System.out.println("DynamicServerList");
-            for(DynamicServer current: dynamicServerList){
-                System.out.println(current);
-            }
-            System.out.println("^^^");
-
-            //get the first largest server index
-
-
-
-
             if(args[0].contains("-a") && args[1].contains("ff")){ // first fit
 
                 System.out.println("ff");
@@ -115,78 +98,53 @@ public class Main {
 
             }else if (args[0].contains("-a") && args[1].contains("wf")) { // worst fit
 
-                System.out.println("wf");
-
-                System.out.println("StaticServers");
-                for (StaticServer current : staticServers) {
-                    System.out.println(current);
-                }
-                System.out.println("^^^");
-
                 int worstFit = -1;
                 int altFit = -1;
-                int worstFitAct = -1;
+                int worstFitAct = -1; //used for worstFit Active server
 
-                DynamicServer wf = null;
-                DynamicServer af = null;
-                DynamicServer wfact = null;
+                DynamicServer wf = null;//worstFit
+                DynamicServer af = null;// altFit
+                DynamicServer wfact = null; //used for worstFit Active server
 
                 for (StaticServer currentStatic : staticServers) {// for each server in staticServer list
                     for (DynamicServer currentDynamic : dynamicServerList) {//for each server in dynamicServer list
-                        if (currentDynamic.getServerType().equals(currentStatic.getType())) {//
-
-//                            System.out.println(currentDynamic);//print the current statistics
+                        if (currentDynamic.getServerType().equals(currentStatic.getType())) {//if the currentDynamic and currentStatic have the same type
 
                             if(currentDynamic.getCpuCores() >= cpuCores && currentDynamic.getMemory() >= memory && currentDynamic.getDisk() >= disk){
-
-                                System.out.println("current Dyanmic: "+currentDynamic);
-                                System.out.println("sutible server ^");
                                 int fitness = currentDynamic.getCpuCores() - cpuCores;
 
                                 if(fitness > worstFit && (currentDynamic.getServerState() == 3 || currentDynamic.getServerState() == 2) ){
+                                    // fitness > worstFit AND (immediately abvalible)
                                     worstFit = fitness;
                                     wf = currentDynamic;
-                                }else if(fitness > altFit &&
-                                        currentDynamic.getServerState() == 0){
+                                }else if(fitness > altFit && currentDynamic.getServerState() == 0){
+                                    // fitness > altFit AND (Short ammount of time till abvalible)
                                     altFit = fitness;
                                     af = currentDynamic;
                                 }
-//
                             }
 
+                            //worstFit  active server based on initial resource capacity
                             if(currentStatic.getCoreCount() >= cpuCores && currentStatic.getMemory() >= memory && currentStatic.getDiskSpace() >= disk){
-                                System.out.println("current static initial: id: "+currentDynamic.getServerTypeId()+" Core: "+currentStatic.getCoreCount()+" memory:"+currentStatic.getMemory()+" disk:"+currentStatic.getDiskSpace());
                                 int worstRunFitness = currentStatic.getCoreCount() - cpuCores;
                                 if(worstRunFitness > worstFitAct && currentDynamic.getServerState() == 3){
                                     worstFitAct = worstRunFitness;
                                     wfact = currentDynamic;
                                 }
                             }
-//                            if(currentDynamic.getServerState() == 3){
-//                                System.out.println("serverstate"+currentDynamic);
-//                            }
-//                            if(currentStatic.getCoreCount() >= cpuCores && currentStatic.getMemory() >= memory && currentStatic.getDiskSpace() >= disk && currentDynamic.getServerState() == 3){
-//                                int fitness = currentStatic.getCoreCount() - cpuCores;
-//                                if(fitness > worstFit && currentDynamic.getAvailableTime() >= submitTime ){
-//                                    wfact = currentDynamic;
-//                                }
-//                            }
                         }
                     }
                 }
 
                 //Schedule the job
-
-                String scheduleInfo = null;
+                String scheduleInfo;
 
                 if(worstFit > -1){
-                    System.out.println("wf: "+wf);
                     scheduleInfo = "SCHD "+jobId+" "+wf.getServerType()+" "+wf.getServerTypeId();
                 }else if (altFit > -1){
-                    System.out.println("af: "+af);
                     scheduleInfo = "SCHD "+jobId+" "+af.getServerType()+" "+af.getServerTypeId();
                 }else{
-                    System.out.println("wrf: "+wfact);
+                    //the servers are in an active state, will use the first worstFit server with initial resource capacity
                     scheduleInfo = "SCHD "+jobId+" "+wfact.getServerType()+" "+wfact.getServerTypeId();
 
                 }
@@ -199,42 +157,7 @@ public class Main {
                 } else if (client.receiveMessageFromServer().equals("ERR")) {
                     System.out.println("ERROR: <" + scheduleInfo + "> invalid message recieved");
                 }
-
-//                Schedule the job
-//                String scheduleInfo = "SCHD 0 medium 0";
-//                client.sendMessageToServer(scheduleInfo);
-//
-//                //response from server "OK"
-//                if (client.receiveMessageFromServer().equals("OK")) {
-//                    //send back "REDY"
-//                    client.sendMessageToServer("REDY");
-//                } else if (client.receiveMessageFromServer().equals("ERR")) {
-//                    System.out.println("ERROR: <" + scheduleInfo + "> invalid message recieved");
-//                }
             }
-
-//            int serverIndex = 0;
-//            int maxCoreCounter = 0;
-//            for(int i = 0; i < dynamicServerList.size(); i++){
-//                int hold;
-//                if((hold = dynamicServerList.get(i).getCpuCores()) > maxCoreCounter){
-//                    maxCoreCounter = hold;
-//                    serverIndex = i;
-//                }
-//            }
-
-//            //Schedule the job
-//            String scheduleInfo = "SCHD " + jobId + " " +
-//                    dynamicServerList.get(serverIndex).getServerType() + " " + dynamicServerList.get(serverIndex).getServerTypeId();
-//            client.sendMessageToServer(scheduleInfo);
-//
-//            //response from server "OK"
-//            if(client.receiveMessageFromServer().equals("OK")){
-//                //send back "REDY"
-//                client.sendMessageToServer("REDY");
-//            }else if(client.receiveMessageFromServer().equals("ERR")){
-//                System.out.println("ERROR: <"+scheduleInfo+"> invalid message recieved");
-//            }
         }
         if(temp.equals("NONE")) {
             client.sendMessageToServer("QUIT");
