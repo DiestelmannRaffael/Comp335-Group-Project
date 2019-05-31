@@ -1,11 +1,3 @@
-/*
- * Stage 1: 'vanilla' client-side simulator with a simple job dispatcher
- * Group 8: Raffael Andreas Diestelmann (45569037),
- *          Connor O’Grady (45117322),
- *          Sang Woung Yoon (44298196)
- * Git: (https://github.com/DiestelmannRaffael/Comp335-Group-Project/tree/stage1)
- * */
-
 import datacontainers.dynamiccontainers.DynamicJob;
 import datacontainers.dynamiccontainers.DynamicServer;
 import datacontainers.xmlparsing.XmlReader;
@@ -56,7 +48,7 @@ public class Main {
 
             int submitTime = Integer.parseInt(parts[1]);
             int jobId = Integer.parseInt(parts[2]);
-            System.out.println("JOB ID: " + jobId);
+            //System.out.println("JOB ID: " + jobId);
             int estRunTime = Integer.parseInt(parts[3]);
             int cpuCores = Integer.parseInt(parts[4]);
             int memory = Integer.parseInt(parts[5]);
@@ -100,6 +92,7 @@ public class Main {
             String scheduleInfo = null;
             int i = 0;
             boolean lastElement = false;
+
             //first fit algorithm
             if (args[0].equals("-a") && args[1].equals("ff")) {
                 for (DynamicServer ds : dynamicServerList) {
@@ -118,6 +111,20 @@ public class Main {
                                 break;
                             }
                         }
+                    }
+                }
+            }
+
+            if (args[0].equals("-a") && args[1].equals("new")) {
+                for (DynamicServer ds : dynamicServerList) {
+                    if(ds.getServerState() == 2 && ds.getCpuCores() > cpuCores) { // schedule to idle server first
+                        scheduleInfo = "SCHD" + jobId + " " + ds.getServerType() + " " + ds.getServerTypeId();
+                    } else if (ds.getServerState() == 0 && ds.getCpuCores() > cpuCores) { // bootup inactive servers
+                        scheduleInfo = "SCHD" + jobId + " " + ds.getServerType() + " " + ds.getServerTypeId();
+                    } else if (ds.getServerState() == 1 && ds.getCpuCores() > cpuCores) { // bootup inactive servers
+                        scheduleInfo = "SCHD" + jobId + " " + ds.getServerType() + " " + ds.getServerTypeId();
+                    } else if (ds.getServerState() == 3 && ds.getCpuCores() > cpuCores) { // bootup inactive servers
+                        scheduleInfo = "SCHD" + jobId + " " + ds.getServerType() + " " + ds.getServerTypeId();
                     }
                 }
             }

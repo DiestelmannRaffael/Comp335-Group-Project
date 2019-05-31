@@ -17,7 +17,7 @@ class JobSchedulerClient {
         String message = output+"\n";
         byte[] temp = message.getBytes();
         out.write(temp);
-        System.out.println("sendMessageToServer: " + output);
+        //System.out.println("sendMessageToServer: " + output);
     }
 
     String receiveMessageFromServer() throws IOException {
@@ -26,7 +26,7 @@ class JobSchedulerClient {
         while((tempinput = in.read()) != '\n'){ // 10 is ASCII code for newLine
             response.append((char) tempinput);
         }
-        System.out.println("receiveMessageFromServer: " + response);
+        //System.out.println("receiveMessageFromServer: " + response);
         return response.toString();
     }
 }
