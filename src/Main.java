@@ -1,11 +1,9 @@
 import datacontainers.dynamiccontainers.DynamicJob;
 import datacontainers.dynamiccontainers.DynamicServer;
-import datacontainers.xmlparsing.XmlReader;
 
 import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -37,8 +35,6 @@ public class Main {
 
         List<DynamicJob> dynamicJobList = new ArrayList<>();
         List<DynamicServer> initialServerList = new ArrayList<>();
-
-        boolean initialRun = true;
 
         while ((temp = client.receiveMessageFromServer()).contains("JOBN")) {
             List<DynamicServer> dynamicServerList = new ArrayList<>();
@@ -83,7 +79,7 @@ public class Main {
 
     private static void optimizeTurnaround(List<DynamicServer> dynamicServerList, List<DynamicServer> initialServerList) throws IOException {
         rescAll(dynamicServerList, initialServerList);
-        
+
                 int minRuntime = Integer.MAX_VALUE;
                 DynamicServer scheduleCandidate = null;
                 for (DynamicServer ds : dynamicServerList) {
@@ -125,7 +121,6 @@ public class Main {
             if (ds.getCpuCores() >= cpuCores && ds.getDisk() >= disk && ds.getMemory() >= memory) {
                 scheduleInfo = "SCHD " + jobId + " " + ds.getServerType() + " " + ds.getServerTypeId();
                 client.sendMessageToServer(scheduleInfo);
-                //LSTJ(ds.getServerType(), ds.getServerTypeId());
                 break;
                 // no available server found
             } else if (lastElement) {
@@ -146,8 +141,8 @@ public class Main {
         if (client.receiveMessageFromServer().contains("DATA")) {
             client.sendMessageToServer("OK");
         }
-        String temp = null;
-        String[] parts = null;
+        String temp;
+        String[] parts;
         boolean initialRun = false;
 
         while (!(temp = client.receiveMessageFromServer()).equals(".")) {
