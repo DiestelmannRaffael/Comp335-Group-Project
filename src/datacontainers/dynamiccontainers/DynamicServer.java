@@ -1,5 +1,7 @@
 package datacontainers.dynamiccontainers;
 
+import java.util.List;
+
 public class DynamicServer {
     private String serverType;
     private int serverTypeId;
@@ -9,6 +11,8 @@ public class DynamicServer {
     private int memory;
     private int disk;
     private int serverTypeValue;
+
+    private List<DynamicJob> jobList;
 
     public DynamicServer(String serverType, int serverTypeId, int serverState, int availableTime, int cpuCores, int memory, int disk) {
         this.serverType = serverType;
@@ -60,5 +64,9 @@ public class DynamicServer {
 
     public int getDisk() {
         return disk;
+    }
+
+    public void setJobList(List<DynamicJob> jobList) {
+        this.jobList = jobList;
     }
 }

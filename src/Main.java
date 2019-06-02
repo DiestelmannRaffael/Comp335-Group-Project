@@ -22,26 +22,18 @@ public class Main {
         int port = 8096;
         Socket socket = new Socket(serverName, port);
         client = new JobSchedulerClient(socket);
-        //XmlReader xmlReader = new XmlReader();
 
-        //send the helo
         client.sendMessageToServer("HELO");
 
-        //server responds with ok
         if (client.receiveMessageFromServer().equals("OK")) {
-            //send the auth
             client.sendMessageToServer("AUTH " + System.getProperty("user.name"));
         }
 
-        //server responds with ok
         if (client.receiveMessageFromServer().equals("OK")) {
-            //send the ready response
             client.sendMessageToServer("REDY");
         }
 
         String temp;
-
-        //read the system.xml = this is the ds-config1.xml
 
         List<DynamicJob> dynamicJobList = new ArrayList<>();
         List<DynamicServer> initialServerList = new ArrayList<>();
@@ -55,11 +47,10 @@ public class Main {
 
             int submitTime = Integer.parseInt(parts[1]);
             jobId = Integer.parseInt(parts[2]);
-            //System.out.println("JOB ID: " + jobId);
             int estRunTime = Integer.parseInt(parts[3]);
-             cpuCores = Integer.parseInt(parts[4]);
-             memory = Integer.parseInt(parts[5]);
-             disk = Integer.parseInt(parts[6]);
+            cpuCores = Integer.parseInt(parts[4]);
+            memory = Integer.parseInt(parts[5]);
+            disk = Integer.parseInt(parts[6]);
 
             DynamicJob dynamicJob = new DynamicJob(submitTime, jobId, estRunTime, cpuCores, memory, disk);
             dynamicJobList.add(dynamicJob);
@@ -72,12 +63,10 @@ public class Main {
             }
 
             if (args[0].equals("-a") && args[1].equals("new")) {
-                optimizeTurnaround();
+                optimizeTurnaround(dynamicServerList, initialServerList);
             }
 
-            //response from server "OK"
             if (client.receiveMessageFromServer().equals("OK")) {
-                //send back "REDY"
                 client.sendMessageToServer("REDY");
             } else if (client.receiveMessageFromServer().equals("ERR")) {
                 System.out.println("ERROR: <" + scheduleInfo + "> invalid message recieved");
@@ -92,10 +81,62 @@ public class Main {
         socket.close();
     }
 
-    private static void optimizeTurnaround() {
+    private static void optimizeTurnaround(List<DynamicServer> dynamicServerList, List<DynamicServer> initialServerList) throws IOException {
+        rescAll(dynamicServerList, initialServerList);
+
+        int i = 0;
+        boolean lastElement = false;
+        for (DynamicServer ds : dynamicServerList) {
+            if(i++ == dynamicServerList.size() - 1)
+                lastElement = true;
+            if (ds.getCpuCores() >= cpuCores && ds.getDisk() >= disk && ds.getMemory() >= memory) {
+                scheduleInfo = "SCHD " + jobId + " " + ds.getServerType() + " " + ds.getServerTypeId();
+                client.sendMessageToServer(scheduleInfo);
+                //LSTJ(ds.getServerType(), ds.getServerTypeId());
+                break;
+                // no available server found
+            } else if (lastElement) {
+                for (DynamicServer is : initialServerList) {
+                    List<DynamicJob> jobList = new ArrayList<>();
+                    is.setJobList(jobList = LSTJ(ds.getServerType(), ds.getServerTypeId()));
+                    getJobRuntime(jobList); // = submitTime + estRunTime
+                }
+                // submitToLowestRuntime
+            }
+        }
+    }
+
+    private static void getJobRuntime(List<DynamicJob> jobList) {
+
     }
 
     private static void firstFit(List<DynamicServer> dynamicServerList, List<DynamicServer> initialServerList) throws IOException {
+        rescAll(dynamicServerList, initialServerList);
+
+        int i = 0;
+        boolean lastElement = false;
+        for (DynamicServer ds : dynamicServerList) {
+            if(i++ == dynamicServerList.size() - 1)
+                lastElement = true;
+            if (ds.getCpuCores() >= cpuCores && ds.getDisk() >= disk && ds.getMemory() >= memory) {
+                scheduleInfo = "SCHD " + jobId + " " + ds.getServerType() + " " + ds.getServerTypeId();
+                client.sendMessageToServer(scheduleInfo);
+                //LSTJ(ds.getServerType(), ds.getServerTypeId());
+                break;
+                // no available server found
+            } else if (lastElement) {
+                for (DynamicServer is : initialServerList) {
+                    if (is.getCpuCores() >= cpuCores && is.getDisk() >= disk && is.getMemory() >= memory) {
+                        scheduleInfo = "SCHD " + jobId + " " + is.getServerType() + " " + is.getServerTypeId();
+                        client.sendMessageToServer(scheduleInfo);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    private static void rescAll(List<DynamicServer> dynamicServerList, List<DynamicServer> initialServerList) throws IOException {
         client.sendMessageToServer("RESC All");
 
         if (client.receiveMessageFromServer().contains("DATA")) {
@@ -128,29 +169,6 @@ public class Main {
             client.sendMessageToServer("OK");
 
         }
-        initialRun = false;
-
-        int i = 0;
-        boolean lastElement = false;
-        for (DynamicServer ds : dynamicServerList) {
-            if(i++ == dynamicServerList.size() - 1)
-                lastElement = true;
-            if (ds.getCpuCores() >= cpuCores && ds.getDisk() >= disk && ds.getMemory() >= memory) {
-                scheduleInfo = "SCHD " + jobId + " " + ds.getServerType() + " " + ds.getServerTypeId();
-                client.sendMessageToServer(scheduleInfo);
-                //LSTJ(ds.getServerType(), ds.getServerTypeId());
-                break;
-                // no available server found
-            } else if (lastElement) {
-                for (DynamicServer is : initialServerList) {
-                    if (is.getCpuCores() >= cpuCores && is.getDisk() >= disk && is.getMemory() >= memory) {
-                        scheduleInfo = "SCHD " + jobId + " " + is.getServerType() + " " + is.getServerTypeId();
-                        client.sendMessageToServer(scheduleInfo);
-                        break;
-                    }
-                }
-            }
-        }
     }
 
     private static List<DynamicJob> LSTJ(String serverType, int serverId) throws IOException {
@@ -162,13 +180,25 @@ public class Main {
 
         String temp = null;
         String[] parts;
+        ArrayList<DynamicJob> jobList = new ArrayList<>();
 
         while (!(temp = client.receiveMessageFromServer()).equals(".")) {
 
             parts = temp.split(" ");
-            System.out.println(parts);
+            //job_id job_state job_start_time job_estimated_runtime #cores_required memeory_required disk_required
+            int jobId = Integer.parseInt(parts[0]);
+            int jobState = Integer.parseInt(parts[1]);
+            int submitTime = Integer.parseInt(parts[2]);
+            int estRunTime = Integer.parseInt(parts[3]);
+            int cores = Integer.parseInt(parts[4]);
+            int memory = Integer.parseInt(parts[5]);
+            int disk = Integer.parseInt(parts[6]);
+
+            DynamicJob dynamicJob = new DynamicJob(jobId, jobState, submitTime, estRunTime, cores, memory, disk);
+
+            jobList.add(dynamicJob);
             client.sendMessageToServer("OK");
         }
-        return new ArrayList<DynamicJob>();
+        return jobList;
     }
 }
