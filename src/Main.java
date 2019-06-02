@@ -63,62 +63,16 @@ public class Main {
 
             DynamicJob dynamicJob = new DynamicJob(submitTime, jobId, estRunTime, cpuCores, memory, disk);
             dynamicJobList.add(dynamicJob);
-
-//            client.sendMessageToServer("RESC Avail " + cpuCores + " " + memory + " " + disk);
-            client.sendMessageToServer("RESC All");
-
-            if (client.receiveMessageFromServer().contains("DATA")) {
-                client.sendMessageToServer("OK");
-            }
-
-            while (!(temp = client.receiveMessageFromServer()).equals(".")) {
-
-                parts = temp.split(" ");
-                String serverType = parts[0];
-                int serverTypeId = Integer.parseInt(parts[1]);
-                int serverState = Integer.parseInt(parts[2]);
-                int availableTime = Integer.parseInt(parts[3]);
-                int serverCpuCores = Integer.parseInt(parts[4]);
-                int serverMemory = Integer.parseInt(parts[5]);
-                int serverDisk = Integer.parseInt(parts[6]);
-
-                dynamicServerList.add(new DynamicServer(serverType, serverTypeId, serverState, availableTime, serverCpuCores,
-                        serverMemory, serverDisk));
-                if(initialRun) {
-                    initialServerList.add(new DynamicServer(serverType, serverTypeId, serverState, availableTime, serverCpuCores,
-                            serverMemory, serverDisk));
-                }
-
-                Collections.sort(dynamicServerList, new ServerSorter());
-                Collections.sort(initialServerList, new ServerSorter());
-                client.sendMessageToServer("OK");
-
-            }
-            initialRun = false;
-
             
 
             //first fit algorithm
             if (args[0].equals("-a") && args[1].equals("ff")) {
                 firstFit(dynamicServerList, initialServerList);
+
             }
 
             if (args[0].equals("-a") && args[1].equals("new")) {
-                for (DynamicServer ds : dynamicServerList) {
-                    if(ds.getServerState() == 2 && ds.getCpuCores() > cpuCores) { // schedule to idle server first
-                        scheduleInfo = "SCHD" + jobId + " " + ds.getServerType() + " " + ds.getServerTypeId();
-                    } else if (ds.getServerState() == 0 && ds.getCpuCores() > cpuCores) { // bootup inactive servers
-                        scheduleInfo = "SCHD" + jobId + " " + ds.getServerType() + " " + ds.getServerTypeId();
-                    } else if (ds.getServerState() == 1 && ds.getCpuCores() > cpuCores) { // bootup inactive servers
-                        scheduleInfo = "SCHD" + jobId + " " + ds.getServerType() + " " + ds.getServerTypeId();
-                    } else if (ds.getServerState() == 3 && ds.getCpuCores() > cpuCores) { // bootup inactive servers
-                        scheduleInfo = "SCHD" + jobId + " " + ds.getServerType() + " " + ds.getServerTypeId();
-                    } else if (ds.getServerState() == 4 && ds.getCpuCores() > cpuCores) { // bootup inactive servers
-                        scheduleInfo = "SCHD" + jobId + " " + ds.getServerType() + " " + ds.getServerTypeId();
-                    } else {
-                        firstFit(dynamicServerList, initialServerList);
-                    }
-                }
+                optimizeTurnaround();
             }
 
             //response from server "OK"
@@ -138,7 +92,44 @@ public class Main {
         socket.close();
     }
 
+    private static void optimizeTurnaround() {
+    }
+
     private static void firstFit(List<DynamicServer> dynamicServerList, List<DynamicServer> initialServerList) throws IOException {
+        client.sendMessageToServer("RESC All");
+
+        if (client.receiveMessageFromServer().contains("DATA")) {
+            client.sendMessageToServer("OK");
+        }
+        String temp = null;
+        String[] parts = null;
+        boolean initialRun = false;
+
+        while (!(temp = client.receiveMessageFromServer()).equals(".")) {
+
+            parts = temp.split(" ");
+            String serverType = parts[0];
+            int serverTypeId = Integer.parseInt(parts[1]);
+            int serverState = Integer.parseInt(parts[2]);
+            int availableTime = Integer.parseInt(parts[3]);
+            int serverCpuCores = Integer.parseInt(parts[4]);
+            int serverMemory = Integer.parseInt(parts[5]);
+            int serverDisk = Integer.parseInt(parts[6]);
+
+            dynamicServerList.add(new DynamicServer(serverType, serverTypeId, serverState, availableTime, serverCpuCores,
+                    serverMemory, serverDisk));
+            if(initialRun) {
+                initialServerList.add(new DynamicServer(serverType, serverTypeId, serverState, availableTime, serverCpuCores,
+                        serverMemory, serverDisk));
+            }
+
+            Collections.sort(dynamicServerList, new ServerSorter());
+            Collections.sort(initialServerList, new ServerSorter());
+            client.sendMessageToServer("OK");
+
+        }
+        initialRun = false;
+
         int i = 0;
         boolean lastElement = false;
         for (DynamicServer ds : dynamicServerList) {
@@ -147,6 +138,7 @@ public class Main {
             if (ds.getCpuCores() >= cpuCores && ds.getDisk() >= disk && ds.getMemory() >= memory) {
                 scheduleInfo = "SCHD " + jobId + " " + ds.getServerType() + " " + ds.getServerTypeId();
                 client.sendMessageToServer(scheduleInfo);
+                //LSTJ(ds.getServerType(), ds.getServerTypeId());
                 break;
                 // no available server found
             } else if (lastElement) {
@@ -159,5 +151,24 @@ public class Main {
                 }
             }
         }
+    }
+
+    private static List<DynamicJob> LSTJ(String serverType, int serverId) throws IOException {
+        client.sendMessageToServer("LSTJ " + serverType + " " + serverId);
+        String response = client.receiveMessageFromServer();
+        if (response.contains("DATA")) {
+            client.sendMessageToServer("OK");
+        }
+
+        String temp = null;
+        String[] parts;
+
+        while (!(temp = client.receiveMessageFromServer()).equals(".")) {
+
+            parts = temp.split(" ");
+            System.out.println(parts);
+            client.sendMessageToServer("OK");
+        }
+        return new ArrayList<DynamicJob>();
     }
 }
