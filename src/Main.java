@@ -83,31 +83,35 @@ public class Main {
 
     private static void optimizeTurnaround(List<DynamicServer> dynamicServerList, List<DynamicServer> initialServerList) throws IOException {
         rescAll(dynamicServerList, initialServerList);
-
-        int i = 0;
-        boolean lastElement = false;
-        for (DynamicServer ds : dynamicServerList) {
-            if(i++ == dynamicServerList.size() - 1)
-                lastElement = true;
-            if (ds.getCpuCores() >= cpuCores && ds.getDisk() >= disk && ds.getMemory() >= memory) {
-                scheduleInfo = "SCHD " + jobId + " " + ds.getServerType() + " " + ds.getServerTypeId();
-                client.sendMessageToServer(scheduleInfo);
-                //LSTJ(ds.getServerType(), ds.getServerTypeId());
-                break;
-                // no available server found
-            } else if (lastElement) {
-                for (DynamicServer is : initialServerList) {
-                    List<DynamicJob> jobList = new ArrayList<>();
-                    is.setJobList(jobList = LSTJ(ds.getServerType(), ds.getServerTypeId()));
-                    getJobRuntime(jobList); // = submitTime + estRunTime
+        
+                int minRuntime = Integer.MAX_VALUE;
+                DynamicServer scheduleCandidate = null;
+                for (DynamicServer ds : dynamicServerList) {
+                    if(ds.getCpuCores() >= cpuCores) {
+                        List<DynamicJob> jobList;
+                        ds.setJobList(jobList = LSTJ(ds.getServerType(), ds.getServerTypeId()));
+                        int runtime = getJobRuntime(jobList);
+                        if (runtime < minRuntime) {
+                            minRuntime = runtime;
+                            scheduleCandidate = ds;
+                        }
+                    }
                 }
+
+                scheduleInfo = "SCHD " + jobId + " " + scheduleCandidate.getServerType() + " " + scheduleCandidate.getServerTypeId();
+                client.sendMessageToServer(scheduleInfo);
+
                 // submitToLowestRuntime
-            }
-        }
+            //}
+        //}
     }
 
-    private static void getJobRuntime(List<DynamicJob> jobList) {
-
+    private static int getJobRuntime(List<DynamicJob> jobList) {
+        int runtime = 0;
+        for(DynamicJob job : jobList) {
+            runtime += job.getSubmitTime() + job.getEstRunTime();
+        }
+        return runtime;
     }
 
     private static void firstFit(List<DynamicServer> dynamicServerList, List<DynamicServer> initialServerList) throws IOException {
