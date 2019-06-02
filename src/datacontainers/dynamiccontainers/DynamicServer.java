@@ -12,6 +12,8 @@ public class DynamicServer {
     private int disk;
     private int serverTypeValue;
 
+    private int initialCores;
+
     private List<DynamicJob> jobList;
 
     public DynamicServer(String serverType, int serverTypeId, int serverState, int availableTime, int cpuCores, int memory, int disk) {
@@ -22,6 +24,8 @@ public class DynamicServer {
         this.cpuCores = cpuCores;
         this.memory = memory;
         this.disk = disk;
+        this.initialCores = -1;
+
 
         switch (serverType) {
             case "tiny": this.serverTypeValue = 0;
@@ -35,6 +39,10 @@ public class DynamicServer {
             case "xlarge": this.serverTypeValue = 4;
                 break;
         }
+    }
+
+    public int getInitialCores() {
+        return initialCores;
     }
     public int getServerTypeValue() { return serverTypeValue; }
 
@@ -69,4 +77,9 @@ public class DynamicServer {
     public void setJobList(List<DynamicJob> jobList) {
         this.jobList = jobList;
     }
+
+    public void setInitialCores(int initialCores) {
+        this.initialCores = initialCores;
+    }
+
 }

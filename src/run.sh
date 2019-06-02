@@ -1,2 +1,2 @@
 javac $(find . | grep .java);
-java Main -a ff;
+java Main -a new;

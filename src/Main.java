@@ -15,6 +15,9 @@ public class Main {
     private static JobSchedulerClient client;
     private static String scheduleInfo = null;
 
+    private static boolean initialRun = true;
+    private static int initialCores = 10;
+
     public static void main(String[] args) throws IOException {
         String serverName = "127.0.0.1";
         int port = 8096;
@@ -50,7 +53,7 @@ public class Main {
 
             DynamicJob dynamicJob = new DynamicJob(submitTime, jobId, estRunTime, cpuCores, memory, disk);
             dynamicJobList.add(dynamicJob);
-            
+
 
             //first fit algorithm
             if (args[0].equals("-a") && args[1].equals("ff")) {
@@ -81,31 +84,42 @@ public class Main {
         rescAll(dynamicServerList, initialServerList);
         Collections.sort(dynamicServerList, new ServerSorter());
 
-                int minRuntime = Integer.MAX_VALUE;
-                DynamicServer scheduleCandidate = null;
-                for (DynamicServer ds : dynamicServerList) {
-                    if(ds.getCpuCores() >= cpuCores) {
-                        List<DynamicJob> jobList;
-                        ds.setJobList(jobList = LSTJ(ds.getServerType(), ds.getServerTypeId()));
-                        int runtime = getJobRuntime(jobList);
-                        if (runtime < minRuntime) {
-                            minRuntime = runtime;
-                            scheduleCandidate = ds;
-                        }
-                    }
+        int i = 0;
+        boolean lastElement = false;
+
+        int minRuntime = Integer.MAX_VALUE;
+        DynamicServer scheduleCandidate = null;
+        for (DynamicServer ds : dynamicServerList) {
+            if (ds.getCpuCores() >= cpuCores) {
+                List<DynamicJob> jobList;
+                ds.setJobList(jobList = LSTJ(ds.getServerType(), ds.getServerTypeId()));
+                int runtime = getJobRuntime(jobList);
+                if (runtime < minRuntime) {
+                    minRuntime = runtime;
+                    scheduleCandidate = ds;
                 }
+            } else if (ds.getInitialCores() >= cpuCores) {
+                List<DynamicJob> jobList;
+                ds.setJobList(jobList = LSTJ(ds.getServerType(), ds.getServerTypeId()));
+                int runtime = getJobRuntime(jobList);
+                if (runtime < minRuntime) {
+                    minRuntime = runtime;
+                    scheduleCandidate = ds;
+                }
+            }
+        }
 
-                scheduleInfo = "SCHD " + jobId + " " + scheduleCandidate.getServerType() + " " + scheduleCandidate.getServerTypeId();
-                client.sendMessageToServer(scheduleInfo);
+        scheduleInfo = "SCHD " + jobId + " " + scheduleCandidate.getServerType() + " " + scheduleCandidate.getServerTypeId();
+        client.sendMessageToServer(scheduleInfo);
 
-                // submitToLowestRuntime
-            //}
+        // submitToLowestRuntime
+        //}
         //}
     }
 
     private static int getJobRuntime(List<DynamicJob> jobList) {
         int runtime = 0;
-        for(DynamicJob job : jobList) {
+        for (DynamicJob job : jobList) {
             runtime += job.getSubmitTime() + job.getEstRunTime();
         }
         return runtime;
@@ -119,7 +133,7 @@ public class Main {
         int i = 0;
         boolean lastElement = false;
         for (DynamicServer ds : dynamicServerList) {
-            if(i++ == dynamicServerList.size() - 1)
+            if (i++ == dynamicServerList.size() - 1)
                 lastElement = true;
             if (ds.getCpuCores() >= cpuCores && ds.getDisk() >= disk && ds.getMemory() >= memory) {
                 scheduleInfo = "SCHD " + jobId + " " + ds.getServerType() + " " + ds.getServerTypeId();
@@ -146,7 +160,6 @@ public class Main {
         }
         String temp;
         String[] parts;
-        boolean initialRun = false;
 
         while (!(temp = client.receiveMessageFromServer()).equals(".")) {
 
@@ -159,16 +172,25 @@ public class Main {
             int serverMemory = Integer.parseInt(parts[5]);
             int serverDisk = Integer.parseInt(parts[6]);
 
-            dynamicServerList.add(new DynamicServer(serverType, serverTypeId, serverState, availableTime, serverCpuCores,
-                    serverMemory, serverDisk));
-            if(initialRun) {
+            DynamicServer dynamicServer = new DynamicServer(serverType, serverTypeId, serverState, availableTime, serverCpuCores,
+                    serverMemory, serverDisk);
+
+            dynamicServerList.add(dynamicServer);
+
+            if (initialRun) {
                 initialServerList.add(new DynamicServer(serverType, serverTypeId, serverState, availableTime, serverCpuCores,
                         serverMemory, serverDisk));
+
             }
 
             client.sendMessageToServer("OK");
 
+
         }
+        for(int i = 0; i < dynamicServerList.size(); i++) {
+            dynamicServerList.get(i).setInitialCores(initialServerList.get(i).getCpuCores());
+        }
+        initialRun = false;
     }
 
     private static List<DynamicJob> LSTJ(String serverType, int serverId) throws IOException {
@@ -178,7 +200,7 @@ public class Main {
             client.sendMessageToServer("OK");
         }
 
-        String temp = null;
+        String temp;
         String[] parts;
         ArrayList<DynamicJob> jobList = new ArrayList<>();
 
