@@ -79,6 +79,7 @@ public class Main {
 
     private static void optimizeTurnaround(List<DynamicServer> dynamicServerList, List<DynamicServer> initialServerList) throws IOException {
         rescAll(dynamicServerList, initialServerList);
+        Collections.sort(dynamicServerList, new ServerSorter());
 
                 int minRuntime = Integer.MAX_VALUE;
                 DynamicServer scheduleCandidate = null;
@@ -112,6 +113,8 @@ public class Main {
 
     private static void firstFit(List<DynamicServer> dynamicServerList, List<DynamicServer> initialServerList) throws IOException {
         rescAll(dynamicServerList, initialServerList);
+        Collections.sort(dynamicServerList, new ServerSorter());
+        Collections.sort(initialServerList, new ServerSorter());
 
         int i = 0;
         boolean lastElement = false;
@@ -163,8 +166,6 @@ public class Main {
                         serverMemory, serverDisk));
             }
 
-            Collections.sort(dynamicServerList, new ServerSorter());
-            Collections.sort(initialServerList, new ServerSorter());
             client.sendMessageToServer("OK");
 
         }
